@@ -1,0 +1,42 @@
+[project]
+name = "sirene-pipeline"
+version = "0.1.0"
+description = "Pipeline médaillon pour l'exploitation de la base SIRENE"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+    "duckdb>=1.1.0",
+    "pandas>=2.2.0",
+    "pyarrow>=15.0.0",
+    "loguru>=0.7.2",
+    "dynaconf>=3.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "bandit>=1.7.7",
+    "pip-audit>=2.7.2",
+    "mkdocs-material>=9.5.0",
+]
+
+[project.scripts]
+# C'est ici qu'on définit nos raccourcis !
+start = "sirene_pipeline.main:main"
+lint = "ruff check src"
+test = "pytest tests"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "D"]
+ignore = ["D100", "D104"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
