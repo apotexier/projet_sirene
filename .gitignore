@@ -1,16 +1,48 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# ==========================================
+# SIRENE Pipeline: Git Ignore Configuration
+# ==========================================
 
-# Virtual environments
-.venv
-.env
+# --- Data & Storage (CRITICAL) ---
+# Ignore all local data storage
+data/
+# Ignore specific database and temporary files
+*.db
+*.db.wal
+*.db.tmp
 
-# Data
+# --- Data File Formats ---
+# Prevent accidental tracking of large data files
 *.csv
 *.parquet
 *.gz
+*.json
+*.zip
+*.sql
+
+# --- Python & Environment ---
+# Ignore virtual environments and environment variables
+.venv/
+.env
+# Ignore python byte-code and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# --- Jupyter Notebooks ---
+# Ignore hidden checkpoints created during EDA
+.ipynb_checkpoints/
+
+# --- Build & Distribution ---
+# Ignore build artifacts and package metadata
+build/
+dist/
+*.egg-info/
+wheels/
+
+# --- IDE & OS ---
+# Ignore editor-specific settings and OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
