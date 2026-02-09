@@ -1,29 +1,15 @@
 [default]
-# directory to store raw data and metadata
+# --- Bronze ---
 bronze_dir = "data/bronze"
-# directory to store metadata about ingested datasets (e.g., schema, ingestion date)
 bronze_registry = "data/bronze/bronze_registry.db"
 
-[default.datasets.etablissements]
-url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockEtablissement_utf8.parquet"
-filename = "stock_etablissement.parquet"
-
-[default.datasets.unites_legales]
-url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockUniteLegale_utf8.parquet"
-filename = "stock_unite_legale.parquet"
-
-[development]
-# Settings for dev (sampling)
-sample_limit = 1000
-
-[production]
-sample_limit = 0  # 0 means no limit (Full Load)
-
-[silver]
+# --- Silver Base ---
+[default.silver]
 output_dir = "data/silver"
 registry_db = "data/silver/silver_registry.db"
 
-[silver.etablissements]
+# --- Silver Columns (IMPORTANT: added 'default.' prefix) ---
+[default.silver.etablissements]
 selected_columns = [
     "siret", 
     "siren", 
@@ -37,7 +23,7 @@ selected_columns = [
     "enseigne1Etablissement"
 ]
 
-[silver.unites_legales]
+[default.silver.unites_legales]
 selected_columns = [
     "siren",
     "denominationUniteLegale",
@@ -50,3 +36,24 @@ selected_columns = [
     "dateCreationUniteLegale",
     "economieSocialeSolidaireUniteLegale"
 ]
+
+# --- Datasets ---
+[default.datasets.etablissements]
+url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockEtablissement_utf8.parquet"
+filename = "stock_etablissement.parquet"
+
+[default.datasets.unites_legales]
+url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockUniteLegale_utf8.parquet"
+filename = "stock_unite_legale.parquet"
+
+# --- Environments ---
+[development]
+sample_limit = 1000
+
+[production]
+sample_limit = 0
+
+# --- Row filters ---
+[default.filters]
+# Departments for Île-de-France
+idf_departments = ["75", "77", "78", "91", "92", "93", "94", "95"]

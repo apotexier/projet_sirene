@@ -1,4 +1,4 @@
-"""Simple profiling script to verify the Silver layer data quality and regional filtering."""
+"""Simple profiling script to verify the Silver layer data quality."""
 
 import duckdb
 from pathlib import Path
@@ -16,36 +16,38 @@ def check_silver_data():
         return
 
     for parquet_file in silver_dir.glob("*_silver.parquet"):
-        # Normalize path for DuckDB (handles Windows backslashes)
+        # Use absolute path and fix backslashes for DuckDB on Windows
         file_path = str(parquet_file.absolute()).replace("\\", "/")
         
         print(f"\n{'='*60}")
         print(f"📊 PROFILING: {parquet_file.name}")
         print(f"{'='*60}")
         
-        # 1. Row count
-        count = con.execute(f"SELECT count(*) FROM read_parquet('{file_path}')").fetchone()[0]
-        print(f"📈 Total Rows: {count:,}")
+        # 1. Total count
+        row_count = con.execute(f"SELECT count(*) FROM read_parquet('{file_path}')").fetchone()[0]
+        print(f"📈 Total Rows: {row_count:,}")
         
         # 2. Schema & Types
         info = con.execute(f"DESCRIBE SELECT * FROM read_parquet('{file_path}')").df()
         print("\n--- Schema & Types ---")
         print(info[['column_name', 'column_type']])
         
-        # 3. Data Statistics (using DuckDB SUMMARIZE)
+        # 3. Quick statistics
+        # Note: 'approx_unique' is the correct name for unique counts in SUMMARIZE
         stats = con.execute(f"SUMMARIZE SELECT * FROM read_parquet('{file_path}')").df()
-        print("\n--- Data Quality (Nulls & Uniqueness) ---")
-        print(stats[['column_name', 'null_percentage', 'unique_count', 'min', 'max']])
+        print("\n--- Data Statistics ---")
+        # Adjusting column names to match DuckDB's SUMMARIZE output
+        available_cols = ['column_name', 'null_percentage', 'approx_unique', 'min', 'max']
+        print(stats[available_cols])
 
-        # 4. Regional Check (Specific for etablissements)
+        # 4. Regional Check (Crucial to verify your IDF Filter)
         if "etablissements" in parquet_file.name:
             print("\n--- 📍 Regional Distribution (IDF Check) ---")
-            # We extract the first 2 digits of the postal code to verify filtering
             distrib = con.execute(f"""
                 SELECT 
                     substring(codePostalEtablissement, 1, 2) AS dept,
-                    count(*) AS count,
-                    round(count(*) * 100.0 / {count}, 2) AS percentage
+                    count(*) AS total_count,
+                    round(count(*) * 100.0 / {row_count}, 2) AS percentage
                 FROM read_parquet('{file_path}')
                 GROUP BY dept
                 ORDER BY dept
