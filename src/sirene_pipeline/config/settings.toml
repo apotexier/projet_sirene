@@ -1,0 +1,52 @@
+[default]
+# directory to store raw data and metadata
+bronze_dir = "data/bronze"
+# directory to store metadata about ingested datasets (e.g., schema, ingestion date)
+bronze_registry = "data/bronze/bronze_registry.db"
+
+[default.datasets.etablissements]
+url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockEtablissement_utf8.parquet"
+filename = "stock_etablissement.parquet"
+
+[default.datasets.unites_legales]
+url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockUniteLegale_utf8.parquet"
+filename = "stock_unite_legale.parquet"
+
+[development]
+# Settings for dev (sampling)
+sample_limit = 1000
+
+[production]
+sample_limit = 0  # 0 means no limit (Full Load)
+
+[silver]
+output_dir = "data/silver"
+registry_db = "data/silver/silver_registry.db"
+
+[silver.etablissements]
+selected_columns = [
+    "siret", 
+    "siren", 
+    "etatAdministratifEtablissement", 
+    "dateCreationEtablissement", 
+    "codePostalEtablissement", 
+    "libelleCommuneEtablissement", 
+    "activitePrincipaleEtablissement", 
+    "trancheEffectifsEtablissement", 
+    "etablissementSiege",
+    "enseigne1Etablissement"
+]
+
+[silver.unites_legales]
+selected_columns = [
+    "siren",
+    "denominationUniteLegale",
+    "nomUniteLegale",
+    "prenom1UniteLegale",
+    "categorieEntreprise",
+    "categorieJuridiqueUniteLegale",
+    "activitePrincipaleUniteLegale",
+    "etatAdministratifUniteLegale",
+    "dateCreationUniteLegale",
+    "economieSocialeSolidaireUniteLegale"
+]

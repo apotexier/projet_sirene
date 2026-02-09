@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Pipeline médaillon pour l'exploitation de la base SIRENE"
 readme = "README.md"
 requires-python = ">=3.11"
+
 dependencies = [
     "requests>=2.31.0",
     "duckdb>=1.1.0",
@@ -11,6 +12,10 @@ dependencies = [
     "pyarrow>=15.0.0",
     "loguru>=0.7.2",
     "dynaconf>=3.2.4",
+    "tdqm>=0.0.1",
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "pandera>=0.29.0",
 ]
 
 [dependency-groups]
@@ -25,10 +30,10 @@ dev = [
 ]
 
 [project.scripts]
-# C'est ici qu'on définit nos raccourcis !
 start = "sirene_pipeline.main:main"
-lint = "ruff check src"
-test = "pytest tests"
+
+[tool.uv]
+
 
 [tool.ruff]
 line-length = 88
