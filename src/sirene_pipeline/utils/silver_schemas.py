@@ -32,9 +32,9 @@ class EtablissementSilverSchema(pa.DataFrameModel):
     enseigne1Etablissement: Series[str] = pa.Field(nullable=True)
 
     # --- New Engineered Columns ---
-    department: Series[str] = pa.Field(nullable=True)
-    activity_sector: Series[str] = pa.Field(nullable=True)
-    company_age: Series[int] = pa.Field(nullable=True)
+    departement: Series[str] = pa.Field(nullable=True)
+    secteur_activite: Series[str] = pa.Field(nullable=True)
+    age_entreprise: Series[int] = pa.Field(nullable=True)
 
     # --- Incremental Metadata ---
     ingested_at: Series[pa.DateTime] = pa.Field(nullable=True)
@@ -71,8 +71,8 @@ class UniteLegaleSilverSchema(pa.DataFrameModel):
 
     # --- New Engineered Columns ---
     # Only activity_sector and company_age for Unites Legales (no postal code)
-    activity_sector: Series[str] = pa.Field(nullable=True)
-    company_age: Series[int] = pa.Field(nullable=True)
+    secteur_activite: Series[str] = pa.Field(nullable=True)
+    age_entreprise: Series[int] = pa.Field(nullable=True)
 
     # --- Incremental Metadata ---
     ingested_at: Series[pa.DateTime] = pa.Field(nullable=True)

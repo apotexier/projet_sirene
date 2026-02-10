@@ -8,6 +8,11 @@ bronze_registry = "data/bronze/bronze_registry.db"
 output_dir = "data/silver"
 registry_db = "data/silver/silver_registry.db"
 
+# --- Gold ---
+[default.gold]
+output_dir = "data/gold"
+master_filename = "sirene_master_enriched.parquet"
+
 # --- Silver Columns (IMPORTANT: added 'default.' prefix) ---
 [default.silver.etablissements]
 selected_columns = [
@@ -45,6 +50,12 @@ filename = "stock_etablissement.parquet"
 [default.datasets.unites_legales]
 url = "https://object.files.data.gouv.fr/data-pipeline-open/siren/stock/StockUniteLegale_utf8.parquet"
 filename = "stock_unite_legale.parquet"
+
+# --- KPI ---
+[default.gold.kpis]
+dept_dist = "kpi_establishments_by_dept.parquet"
+sectors = "kpi_dominant_sectors.parquet"
+size_dist = "kpi_business_size.parquet"
 
 # --- Environments ---
 [development]

@@ -13,7 +13,10 @@ from sirene_pipeline.config import settings
 
 
 def run_ingestion_bronze(
-    url: str, output_path: Path, limit: int = 0, dataset_name: str = "Dataset"
+    url: str, output_path: Path,
+    limit: int = 0, 
+    dataset_name: str = "Dataset",
+    registry_path: str = ""
 ) -> None:
     """Ingests SIRENE data incrementally using settings.toml.
 
@@ -27,7 +30,7 @@ def run_ingestion_bronze(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # 1. Database Connection using config path
-    db_metadata_path = settings.bronze_registry
+    db_metadata_path = registry_path if len(registry_path)>0 else settings.bronze_registry
     con = duckdb.connect(database=db_metadata_path)
 
     # 2. Prepare Audit Metadata & Parameters
@@ -75,7 +78,7 @@ def run_ingestion_bronze(
 
             duration = time.time() - start_time
             result = con.execute(f"SELECT count(*) FROM {dataset_name}").fetchone()
-            #handle case where result is None
+            #handle case where result is None (e.g., if table is empty or query fails)
             row_count = result[0] if result else 0
 
             if row_count == 0:

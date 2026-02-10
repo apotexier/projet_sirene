@@ -13,10 +13,11 @@ dependencies = [
     "pyarrow>=15.0.0",
     "loguru>=0.7.2",
     "dynaconf>=3.2.4",
-    "tqdm>=0.0.1",     # Utility for progress bars
+    "tqdm>=0.0.1", # Utility for progress bars
     "ipykernel>=7.2.0",
     "ipywidgets>=8.1.8",
     "pandera>=0.20.0", # Data validation for DataFrames
+    "plotly>=6.5.2",
 ]
 
 [dependency-groups]

@@ -113,7 +113,7 @@ def run_silver_transformation(dataset_name: str) -> None:
 
     # --- FEATURE ENGINEERING ---
     if "codePostalEtablissement" in new_df.columns:
-        new_df["department"] = new_df["codePostalEtablissement"].str[:2]
+        new_df["departement"] = new_df["codePostalEtablissement"].str[:2]
 
     naf_col = (
         "activitePrincipaleEtablissement"
@@ -121,7 +121,7 @@ def run_silver_transformation(dataset_name: str) -> None:
         else "activitePrincipaleUniteLegale"
     )
     if naf_col in new_df.columns:
-        new_df["activity_sector"] = new_df[naf_col].str[:2]
+        new_df["secteur_activite"] = new_df[naf_col].str[:2]
 
     date_creation_col = (
         "dateCreationEtablissement"
@@ -130,8 +130,8 @@ def run_silver_transformation(dataset_name: str) -> None:
     )
     if date_creation_col in new_df.columns:
         current_year = datetime.now().year
-        new_df["company_age"] = current_year - new_df[date_creation_col].dt.year
-        new_df["company_age"] = new_df["company_age"].fillna(-1).astype(int)
+        new_df["age_entreprise"] = current_year - new_df[date_creation_col].dt.year
+        new_df["age_entreprise"] = new_df["age_entreprise"].fillna(-1).astype(int)
 
     # Final string fill
     string_cols = new_df.select_dtypes(include=["object"]).columns
