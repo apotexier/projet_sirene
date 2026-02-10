@@ -1,4 +1,5 @@
 [project]
+# Primary project identification and metadata
 name = "sirene-pipeline"
 version = "0.1.0"
 description = "Pipeline médaillon pour l'exploitation de la base SIRENE"
@@ -12,36 +13,65 @@ dependencies = [
     "pyarrow>=15.0.0",
     "loguru>=0.7.2",
     "dynaconf>=3.2.4",
-    "tdqm>=0.0.1",
+    "tqdm>=0.0.1",     # Utility for progress bars
     "ipykernel>=7.2.0",
     "ipywidgets>=8.1.8",
-    "pandera>=0.29.0",
+    "pandera>=0.20.0", # Data validation for DataFrames
 ]
 
 [dependency-groups]
+# Development and Quality Assurance tools
 dev = [
-    "ruff>=0.3.0",
-    "mypy>=1.9.0",
-    "pytest>=8.0.0",
+    "ruff>=0.3.0",      # Fast linter and formatter
+    "mypy>=1.9.0",      # Static type checker
+    "pytest>=8.0.0",    # Testing framework
     "pytest-cov>=4.1.0",
-    "bandit>=1.7.7",
-    "pip-audit>=2.7.2",
+    "bandit>=1.7.7",    # Security linter
+    "pip-audit>=2.7.2", # Dependency vulnerability scanner
     "mkdocs-material>=9.5.0",
+    "pandas-stubs",     # Type stubs for better Mypy/Pandas integration
 ]
 
 [project.scripts]
 start = "sirene_pipeline.main:main"
 
-[tool.uv]
-
-
 [tool.ruff]
-line-length = 88
+# Core Ruff configuration: https://docs.astral.sh/ruff/settings/
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "D"]
-ignore = ["D100", "D104"]
+# Selected rulesets:
+# E/F: Pycodestyle/Pyflakes (standard errors)
+# I: Isort (import sorting)
+# D: Pydocstyle (docstring compliance)
+# N: Pep8-naming (naming conventions)
+# UP: Pyupgrade (enforce modern Python syntax)
+select = ["E", "F", "I", "D", "N", "UP"]
+
+# Ignored rules for brevity in specific contexts
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore mixedCase naming in schema files because they must match INSEE columns
+"src/sirene_pipeline/utils/silver_schemas.py" = ["N815"]
 
 [tool.ruff.lint.pydocstyle]
+# Enforce Google-style docstrings as per project instructions
 convention = "google"
+
+[tool.mypy]
+# Global Mypy configuration for strict type checking
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+disallow_untyped_defs = true # Forces all functions to have type annotations
+
+[[tool.mypy.overrides]]
+# Specific override for pandas due to complex generic typing
+module = "pandas.*"
+ignore_missing_imports = true

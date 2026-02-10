@@ -1223,6 +1223,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pandas-stubs"
+version = "3.0.0.260204"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/27/1d/297ff2c7ea50a768a2247621d6451abb2a07c0e9be7ca6d36ebe371658e5/pandas_stubs-3.0.0.260204.tar.gz", hash = "sha256:bf9294b76352effcffa9cb85edf0bed1339a7ec0c30b8e1ac3d66b4228f1fbc3", size = 109383, upload-time = "2026-02-04T15:17:17.247Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7c/2f/f91e4eee21585ff548e83358332d5632ee49f6b2dcd96cb5dca4e0468951/pandas_stubs-3.0.0.260204-py3-none-any.whl", hash = "sha256:5ab9e4d55a6e2752e9720828564af40d48c4f709e6a2c69b743014a6fcb6c241", size = 168540, upload-time = "2026-02-04T15:17:15.615Z" },
+]
+
+[[package]]
 name = "pandera"
 version = "0.29.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1847,7 +1859,7 @@ dependencies = [
     { name = "pandera" },
     { name = "pyarrow" },
     { name = "requests" },
-    { name = "tdqm" },
+    { name = "tqdm" },
 ]
 
 [package.dev-dependencies]
@@ -1855,6 +1867,7 @@ dev = [
     { name = "bandit" },
     { name = "mkdocs-material" },
     { name = "mypy" },
+    { name = "pandas-stubs" },
     { name = "pip-audit" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -1869,10 +1882,10 @@ requires-dist = [
     { name = "ipywidgets", specifier = ">=8.1.8" },
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "pandas", specifier = ">=2.2.0" },
-    { name = "pandera", specifier = ">=0.29.0" },
+    { name = "pandera", specifier = ">=0.20.0" },
     { name = "pyarrow", specifier = ">=15.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
-    { name = "tdqm", specifier = ">=0.0.1" },
+    { name = "tqdm", specifier = ">=0.0.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -1880,6 +1893,7 @@ dev = [
     { name = "bandit", specifier = ">=1.7.7" },
     { name = "mkdocs-material", specifier = ">=9.5.0" },
     { name = "mypy", specifier = ">=1.9.0" },
+    { name = "pandas-stubs" },
     { name = "pip-audit", specifier = ">=2.7.2" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-cov", specifier = ">=4.1.0" },
@@ -1926,15 +1940,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/96/5b/496f8abebd10c3301
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/40/8561ce06dc46fd17242c7724ab25b257a2ac1b35f4ebf551b40ce6105cfa/stevedore-5.6.0-py3-none-any.whl", hash = "sha256:4a36dccefd7aeea0c70135526cecb7766c4c84c473b1af68db23d541b6dc1820", size = 54428, upload-time = "2025-11-20T10:06:05.946Z" },
 ]
-
-[[package]]
-name = "tdqm"
-version = "0.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tqdm" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5a/38/58c9e22b95e98666fe29f35e217ab6126a03798dadf3f4f8f3e5f898510b/tdqm-0.0.1.tar.gz", hash = "sha256:f050004a76b1d22f70b78209b48781353c82440215b6ba7d22b1f499b05a0101", size = 1388, upload-time = "2020-08-19T20:16:22.191Z" }
 
 [[package]]
 name = "tomli"

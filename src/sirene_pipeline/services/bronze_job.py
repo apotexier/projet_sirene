@@ -11,11 +11,9 @@ from tqdm import tqdm
 # Assuming Dynaconf is used to load settings.toml
 from sirene_pipeline.config import settings
 
+
 def run_ingestion_bronze(
-    url: str,
-    output_path: Path,
-    limit: int = None,
-    dataset_name: str = "Dataset"
+    url: str, output_path: Path, limit: int = 0, dataset_name: str = "Dataset"
 ) -> None:
     """Ingests SIRENE data incrementally using settings.toml.
 
@@ -34,18 +32,18 @@ def run_ingestion_bronze(
 
     # 2. Prepare Audit Metadata & Parameters
     ingested_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     # Logic: 1. Use function arg 'limit' if provided
     #        2. Else use 'sample_limit' from settings.toml
     #        3. Default to 0 (Full load) if nothing found
     final_limit = limit if limit is not None else settings.get("sample_limit", 0)
     limit_clause = f"LIMIT {final_limit}" if final_limit > 0 else ""
-    
+
     # Identify Primary Key (siren or siret)
     pk = "siret" if "etablissement" in dataset_name.lower() else "siren"
 
     # 3. SQL Logic: Anti-Join for Idempotency
-    # 
+    #
     query = f"""
         -- Create table structure if it doesn't exist
         CREATE TABLE IF NOT EXISTS {dataset_name} AS 
@@ -59,7 +57,6 @@ def run_ingestion_bronze(
         WHERE target.{pk} IS NULL
         {limit_clause};
 
-        -- Snapshot the current table state to the Bronze Parquet file
         COPY {dataset_name} TO '{output_path}' (FORMAT PARQUET, OVERWRITE_OR_IGNORE);
     """
 
@@ -70,15 +67,20 @@ def run_ingestion_bronze(
         desc=f"Ingesting {dataset_name}",
         bar_format="{desc}: {elapsed} |{bar}| [Working...]",
         unit="s",
-        leave=False
+        leave=False,
     ) as pbar:
         try:
             con.execute(query)
             pbar.update(1)
 
             duration = time.time() - start_time
-            row_count = con.execute(f"SELECT count(*) FROM {dataset_name}").fetchone()[0]
-            
+            result = con.execute(f"SELECT count(*) FROM {dataset_name}").fetchone()
+            #handle case where result is None
+            row_count = result[0] if result else 0
+
+            if row_count == 0:
+                logger.warning(f"{dataset_name} No new rows ingested. Table is up to date.")
+
             logger.success(
                 f"[{dataset_name}] Current total in registry: {row_count:,} rows ({duration:.2f}s)."
             )

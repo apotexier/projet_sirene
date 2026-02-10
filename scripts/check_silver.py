@@ -1,60 +1,68 @@
-"""Simple profiling script to verify the Silver layer data quality."""
+"""Script to verify the integrity and content of the Silver layer."""
 
-import duckdb
 from pathlib import Path
+
+import pandas as pd
+from loguru import logger
+
 from sirene_pipeline.config import settings
 
-def check_silver_data():
-    """Profiles Silver Parquet files and verifies regional filters."""
-    con = duckdb.connect()
-    
-    # Ensure the path is correctly retrieved from Dynaconf
+
+def check_silver_layer() -> None:
+    """Analyzes Silver files to verify incremental loads and feature engineering."""
     silver_dir = Path(settings.silver.output_dir)
-    
+
     if not silver_dir.exists():
-        print(f"❌ Error: Silver directory not found at {silver_dir}")
+        logger.error(f"❌ Silver directory not found at {silver_dir}")
         return
 
-    for parquet_file in silver_dir.glob("*_silver.parquet"):
-        # Use absolute path and fix backslashes for DuckDB on Windows
-        file_path = str(parquet_file.absolute()).replace("\\", "/")
-        
-        print(f"\n{'='*60}")
-        print(f"📊 PROFILING: {parquet_file.name}")
-        print(f"{'='*60}")
-        
-        # 1. Total count
-        row_count = con.execute(f"SELECT count(*) FROM read_parquet('{file_path}')").fetchone()[0]
-        print(f"📈 Total Rows: {row_count:,}")
-        
-        # 2. Schema & Types
-        info = con.execute(f"DESCRIBE SELECT * FROM read_parquet('{file_path}')").df()
-        print("\n--- Schema & Types ---")
-        print(info[['column_name', 'column_type']])
-        
-        # 3. Quick statistics
-        # Note: 'approx_unique' is the correct name for unique counts in SUMMARIZE
-        stats = con.execute(f"SUMMARIZE SELECT * FROM read_parquet('{file_path}')").df()
-        print("\n--- Data Statistics ---")
-        # Adjusting column names to match DuckDB's SUMMARIZE output
-        available_cols = ['column_name', 'null_percentage', 'approx_unique', 'min', 'max']
-        print(stats[available_cols])
+    silver_files = list(silver_dir.glob("*.parquet"))
 
-        # 4. Regional Check (Crucial to verify your IDF Filter)
-        if "etablissements" in parquet_file.name:
-            print("\n--- 📍 Regional Distribution (IDF Check) ---")
-            distrib = con.execute(f"""
-                SELECT 
-                    substring(codePostalEtablissement, 1, 2) AS dept,
-                    count(*) AS total_count,
-                    round(count(*) * 100.0 / {row_count}, 2) AS percentage
-                FROM read_parquet('{file_path}')
-                GROUP BY dept
-                ORDER BY dept
-            """).df()
-            print(distrib)
+    if not silver_files:
+        logger.warning("⚠️ No parquet files found in Silver directory.")
+        return
 
-    con.close()
+    for file_path in silver_files:
+        logger.info(f"🔍 Analyzing: {file_path.name}")
+        df = pd.read_parquet(file_path)
+
+        # 1. Basic Stats
+        total_rows = len(df)
+        logger.info(f"📊 Total records: {total_rows:,}")
+
+        # 2. Check New Engineered Columns
+        new_cols = ["activity_sector", "company_age", "ingested_at"]
+
+        # Only check department for establishments
+        if "etablissements" in file_path.name:
+            new_cols.append("department")
+
+        for col in new_cols:
+            if col in df.columns:
+                null_pct = df[col].isna().mean() * 100
+                logger.success(f"✅ Column '{col}' present (Nulls: {null_pct:.2f}%)")
+            else:
+                logger.error(f"❌ Column '{col}' is MISSING")
+
+        # 3. Incremental Insight
+        if "ingested_at" in df.columns:
+            last_load = df["ingested_at"].max()
+            first_load = df["ingested_at"].min()
+            load_count = df["ingested_at"].nunique()
+            logger.info(f"⏱️ Data spans from {first_load} to {last_load}")
+            logger.info(f"🔄 Number of distinct ingestion batches: {load_count}")
+
+        # 4. Business Logic Preview
+        if "company_age" in df.columns:
+            avg_age = df[df["company_age"] > 0]["company_age"].mean()
+            logger.info(f"🏢 Average company age: {avg_age:.1f} years")
+
+        if "department" in df.columns:
+            top_depts = df["department"].value_counts().head(3).to_dict()
+            logger.info(f"📍 Top 3 departments: {top_depts}")
+
+        print("-" * 50)
+
 
 if __name__ == "__main__":
-    check_silver_data()
+    check_silver_layer()
