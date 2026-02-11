@@ -11,6 +11,7 @@ import duckdb
 from loguru import logger
 
 from sirene_pipeline.config import settings
+from sirene_pipeline.utils.metrics import monitor_step
 
 @monitor_step
 def run_gold_layer(

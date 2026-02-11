@@ -59,7 +59,7 @@ size_dist = "kpi_business_size.parquet"
 
 # --- Environments ---
 [development]
-sample_limit = 1000
+sample_limit = 50000
 
 [production]
 sample_limit = 0
