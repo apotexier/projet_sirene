@@ -26,12 +26,12 @@ Le projet est structuré de manière modulaire pour séparer la logique de trait
 | Dossier / Fichier | Description |
 | :--- | :--- |
 | **`.venv/`** | Environnement virtuel isolé contenant les 111 packages gérés par **uv**. |
-| **`data/`** | [cite_start]Stockage local des données structuré selon l'architecture Medallion (**bronze**, **silver**, **gold**)[cite: 39, 42]. |
-| **`docs/`** | [cite_start]Contient la documentation technique et le support de présentation (Pipeline SIRENE.pptx)[cite: 1, 12]. |
+| **`data/`** | Stockage local des données structuré selon l'architecture Medallion (**bronze**, **silver**, **gold**). |
+| **`docs/`** | Contient la documentation technique et le support de présentation (Pipeline SIRENE.pptx). |
 | **`notebooks/`** | Travaux d'exploration des données et prototypage des calculs SQL DuckDB. |
 | **`scripts/`** | Utilitaires de maintenance : `check_quality.py` (Linting/Typage) et `check_gold.py` (Validation des KPIs). |
 | **`src/`** | Cœur du pipeline : contient les définitions des jobs pour chaque couche et les services métier. |
-| **`tests/`** | [cite_start]Suite de tests unitaires et d'intégration validant l'idempotence et la logique des KPIs via **Pytest**[cite: 85, 86]. |
+| **`tests/`** | Suite de tests unitaires et d'intégration validant l'idempotence et la logique des KPIs via **Pytest**. |
 | **`.env`** | Fichier de variables d'environnement (ex: `ENV_FOR_DYNACONF`) pour basculer entre Prod et Dev. |
 | **`pyproject.toml`** | Configuration centrale du projet (dépendances, outils Ruff, Mypy et Pytest). |
 | **`uv.lock`** | Empreinte exacte des dépendances pour garantir la reproductibilité sur n'importe quelle machine. |
