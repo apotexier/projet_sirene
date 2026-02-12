@@ -1,11 +1,10 @@
 """Module for the Gold layer: Data enrichment and KPI generation.
 
-This module joins Silver datasets to create a unified 'Master' table and 
+This module joins Silver datasets to create a unified 'Master' table and
 computes key performance indicators (KPIs) for business analysis.
 """
 
 from pathlib import Path
-from typing import Optional
 
 import duckdb
 from loguru import logger
@@ -13,15 +12,15 @@ from loguru import logger
 from sirene_pipeline.config import settings
 from sirene_pipeline.utils.metrics import monitor_step
 
+
 @monitor_step
 def run_gold_layer(
-    custom_silver_dir: Optional[Path] = None, 
-    custom_gold_dir: Optional[Path] = None
+    custom_silver_dir: Path | None = None, custom_gold_dir: Path | None = None
 ) -> None:
     """Processes the Gold layer by enriching data and calculating KPIs.
 
     The process follows two main phases:
-    1. Denormalization: Left join between Establishments and Legal Units to 
+    1. Denormalization: Left join between Establishments and Legal Units to
        create a comprehensive master file.
     2. Aggregation: Computation of three specific KPIs defined in requirements.
 
@@ -39,7 +38,7 @@ def run_gold_layer(
     # We resolve the directories: priority to custom paths, otherwise use settings
     silver_dir: Path = custom_silver_dir or Path(settings.silver.output_dir)
     gold_dir: Path = custom_gold_dir or Path(settings.gold.output_dir)
-    
+
     gold_dir.mkdir(parents=True, exist_ok=True)
 
     # Use .as_posix() for SQL compatibility across all Operating Systems
@@ -75,7 +74,7 @@ def run_gold_layer(
 
         # STEP 2: KPI GENERATION (Aggregations)
         # ---------------------------------------------------------
-        
+
         # KPI 1: Establishments by Department
         logger.info(f"📊 Calculating: {settings.gold.kpis.dept_dist}")
         con.execute(f"""

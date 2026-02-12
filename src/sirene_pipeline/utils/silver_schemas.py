@@ -1,7 +1,5 @@
 """Data validation schemas for the Silver layer using Pandera."""
 
-from datetime import datetime
-
 import pandera.pandas as pa
 from pandera.typing import Series
 

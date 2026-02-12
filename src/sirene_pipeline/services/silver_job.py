@@ -16,11 +16,11 @@ from sirene_pipeline.utils.silver_schemas import SCHEMA_MAP
 def run_silver_transformation(dataset_name: str) -> None:
     """Performs incremental transformation, regional filtering, and cleaning.
 
-    This function reads new Bronze data, applies business rules, handles 
+    This function reads new Bronze data, applies business rules, handles
     date boundary issues, cleans malformed postal codes, and validates schemas.
 
     Args:
-        dataset_name: Name of the dataset to process ('etablissements' or 
+        dataset_name: Name of the dataset to process ('etablissements' or
             'unites_legales').
 
     Raises:
@@ -69,10 +69,11 @@ def run_silver_transformation(dataset_name: str) -> None:
         if dataset_name == "etablissements" and target_depts:
             depts_str = ", ".join([f"'{d}'" for d in target_depts])
             where_clauses.append(f"substring(codePostalEtablissement, 1, 2) IN ({depts_str})")
-        
+
         # Determine the date field to protect against Pandas 'Out of Bounds'
         date_creation_field = (
-            "dateCreationEtablissement" if dataset_name == "etablissements" 
+            "dateCreationEtablissement"
+            if dataset_name == "etablissements"
             else "dateCreationUniteLegale"
         )
 
@@ -89,7 +90,7 @@ def run_silver_transformation(dataset_name: str) -> None:
                 """)
             else:
                 sql_columns.append(col)
-        
+
         query = f"""
             SELECT {", ".join(sql_columns)} 
             FROM read_parquet('{bronze_path}')
@@ -118,10 +119,12 @@ def run_silver_transformation(dataset_name: str) -> None:
     # --- FIX: Robust Postal Code Cleaning (Fixes Pandera crashes) ---
     if "codePostalEtablissement" in new_df.columns:
         # Trim whitespace and filter for exact 5-digit format
-        new_df["codePostalEtablissement"] = new_df["codePostalEtablissement"].astype(str).str.strip()
+        new_df["codePostalEtablissement"] = (
+            new_df["codePostalEtablissement"].astype(str).str.strip()
+        )
         valid_cp_mask = new_df["codePostalEtablissement"].str.match(r"^\d{5}$", na=False)
         invalid_count = (~valid_cp_mask).sum()
-        
+
         if invalid_count > 0:
             logger.warning(f"🗑️ Dropped {invalid_count} malformed postal codes (noise in SIRENE)")
             new_df = new_df[valid_cp_mask].copy()
@@ -148,7 +151,11 @@ def run_silver_transformation(dataset_name: str) -> None:
     if "codePostalEtablissement" in new_df.columns:
         new_df["departement"] = new_df["codePostalEtablissement"].str[:2]
 
-    naf_col = "activitePrincipaleEtablissement" if "siret" in new_df.columns else "activitePrincipaleUniteLegale"
+    naf_col = (
+        "activitePrincipaleEtablissement"
+        if "siret" in new_df.columns
+        else "activitePrincipaleUniteLegale"
+    )
     if naf_col in new_df.columns:
         new_df["secteur_activite"] = new_df[naf_col].str[:2]
 
@@ -166,11 +173,11 @@ def run_silver_transformation(dataset_name: str) -> None:
         logger.info("🔄 Merging with existing Silver storage")
         existing_df = pd.read_parquet(silver_output)
         final_df = pd.concat([existing_df, new_df])
-        
+
         # Ensure overall data quality for postal codes after merge
         if "codePostalEtablissement" in final_df.columns:
             final_df = final_df[final_df["codePostalEtablissement"].str.match(r"^\d{5}$", na=False)]
-            
+
         final_df = final_df.drop_duplicates(subset=id_cols, keep="last")
     else:
         final_df = new_df

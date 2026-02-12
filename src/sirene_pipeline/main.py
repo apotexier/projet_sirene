@@ -61,7 +61,7 @@ def main() -> None:
     # Logic: Gold requires BOTH datasets (etablissements AND unites_legales)
     # because it performs a join between them to create the master table.
     logger.info("--- Phase 3: Gold Aggregation ---")
-    
+
     if len(successful_silver) == len(datasets_to_process):
         try:
             logger.info("Processing Gold layer (Master table + KPIs)")

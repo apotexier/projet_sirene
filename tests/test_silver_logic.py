@@ -1,25 +1,30 @@
 """Unit tests for Silver transformation logic."""
 
-from sirene_pipeline.utils.silver_schemas import EtablissementSilverSchema
 import pandas as pd
-import pytest
 
-def test_siret_validation(sample_etablissement_df):
+
+def test_siret_validation(sample_etablissement_df: pd.DataFrame) -> None:
     """Checks if Pandera correctly identifies invalid SIRET formats."""
     # We expect this to fail or we filter it manually
     df = sample_etablissement_df
-    
-    # Test: SIRET must be 14 digits
-    mask = df['siret'].str.match(r"^\d{14}$")
-    assert mask[0] == True
-    assert mask[1] == False  # 'invalid_siret' should fail
 
-def test_idf_filtering():
-    """Checks if the logic correctly filters departments outside IDF."""
-    idf_deps = ["75", "77", "78", "91", "92", "93", "94", "95"]
-    test_data = pd.DataFrame({"dept": ["75", "69", "93", "13"]})
-    
-    filtered = test_data[test_data['dept'].isin(idf_deps)]
-    
+    # Test: SIRET must be 14 digits
+    mask = df["siret"].str.match(r"^\d{14}$")
+    assert mask[0]
+    assert not mask[1]  # 'invalid_siret' should fail
+
+
+def test_idf_filtering() -> None:
+    """Checks if the logic correctly filters departments outside IDF.
+
+    This test ensures that the Silver layer strictly adheres to the
+    geographical scope defined in the project objectives.
+    """
+    idf_deps: list[str] = ["75", "77", "78", "91", "92", "93", "94", "95"]
+    test_data: pd.DataFrame = pd.DataFrame({"dept": ["75", "69", "93", "13"]})
+
+    filtered: pd.DataFrame = test_data[test_data["dept"].isin(idf_deps)]
+
     assert len(filtered) == 2
-    assert "69" not in filtered['dept'].values
+    # .values can return Any, so we ensure the logic is clear for the linter
+    assert "69" not in filtered["dept"].tolist()
